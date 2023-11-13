@@ -1,9 +1,4 @@
-from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QVBoxLayout, QPushButton, QFileDialog
-from PyQt5.QtGui import QPixmap, QImage, QColor, QTransform
-from PyQt5 import QtWidgets
-from PyQt5 import QtGui
-from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog
-from PIL import Image, ImageFilter, ImageEnhance
+from PyQt5.QtGui import QPixmap, QColor, QTransform
 
 
 class Filters:
