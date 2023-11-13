@@ -1,0 +1,9 @@
+Help in using:
+1). Open the image you want to process and apply filters by clicking 
+“Open”
+2). On the right are filters that can be applied by clicking the corresponding buttons any
+number of times
+3) If you want to start applying filters to another image, click again 
+“Open”
+4). To save the resulting image, click “Save” and select
+the folder and name you need
