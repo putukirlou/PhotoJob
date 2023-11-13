@@ -1,14 +1,12 @@
-from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QVBoxLayout, QPushButton, QFileDialog, QMessageBox, QGridLayout, QFrame, QTabWidget
-from PyQt5.QtGui import QPixmap, QImage, QColor, QIcon, QPainter, QTransform
+from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QPushButton, QFileDialog, QMessageBox, QGridLayout
+from PyQt5.QtGui import QPixmap, QColor, QTransform
 from PyQt5 import QtWidgets, QtCore
-from PyQt5 import QtGui
-from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog
-from PyQt5.QtCore import QTimer
-from PyQt5.QtGui import QImageWriter, QKeyEvent
-from PyQt5.QtCore import QTimer
+from PyQt5.QtWidgets import QApplication, QFileDialog
+# from PyQt5.QtGui import QImageWriter, QKeyEvent
 
+import sqlite3
 import sys
-from PIL import Image, ImageFilter, ImageEnhance
+# from PIL import Image, ImageFilter, ImageEnhance
 
 
 class ImageProcessor(QWidget):
@@ -22,20 +20,34 @@ class ImageProcessor(QWidget):
         self.new_text = QtWidgets.QLabel(self)
         self.setStyleSheet("background-color: rgb(20, 20, 30);")
 
+        self.button_show_text = QPushButton("Показать текст", self)
+        self.button_show_text.clicked.connect(self.show_text)
+
+        # Создание кнопок
         self.label = QLabel(self)
 
-        self.button_inst = QPushButton('i', self)
-        self.button_inst.setFixedWidth(35)
-        self.button_inst.setFixedHeight(35)
+        self.button_inst = QPushButton('HELP', self)
+        self.button_inst.setFixedWidth(70)
+        self.button_inst.setFixedHeight(30)
         self.button_inst.setStyleSheet(
-            "font: bold 20px;"
+            "font: bold 12px;"
             "border-radius: 10px;"
             "background-color: rgb(10, 10, 20);"
             "border-radius: 10px;"
             "color: rgb(130, 130, 140);")
         self.button_inst.move(100, 800)
 
-        # Создаем кнопки
+        self.button_history = QPushButton('HISTORY', self)
+        self.button_history.setFixedWidth(90)
+        self.button_history.setFixedHeight(30)
+        self.button_history.setStyleSheet(
+            "font: bold 12px;"
+            "border-radius: 10px;"
+            "background-color: rgb(10, 10, 20);"
+            "border-radius: 10px;"
+            "color: rgb(130, 130, 140);")
+        self.button_inst.move(100, 800)
+
         self.button_open = QPushButton('Открыть', self)
         self.button_open.setFixedWidth(150)
         self.button_open.setStyleSheet(
@@ -178,11 +190,40 @@ class ImageProcessor(QWidget):
             "min-width: 10em;"
             "padding: 6px;")
 
-        # Смещение
+        self.button_contrast = QPushButton("Контраст", self)
+        self.button_contrast.setFixedWidth(150)
+        self.button_contrast.move(150, 800)
+        self.button_contrast.setStyleSheet(
+            "color: rgb(170, 170, 180);"
+            "background-color: rgb(15, 15, 20);"
+            "border-radius: 10px;"
+            "border-color: rgb(250, 250, 250);"
+            "font: bold 14px;"
+            "min-width: 10em;"
+            "padding: 6px;")
+
+        self.button_sepia = QPushButton("Сепиа", self)
+        self.button_sepia.setFixedWidth(150)
+        self.button_sepia.move(150, 800)
+        self.button_sepia.setStyleSheet(
+            "color: rgb(170, 170, 180);"
+            "background-color: rgb(15, 15, 20);"
+            "border-radius: 10px;"
+            "border-color: rgb(250, 250, 250);"
+            "font: bold 14px;"
+            "min-width: 10em;"
+            "padding: 6px;")
+
+        # Смещение кнопок
         self.label.move(10, 10)
         self.button_open.move(950, 710)
         self.button_save.move(950, 750)
 
+        self.button_history.move(1040, 15)
+        self.button_inst.move(950, 15)
+        self.button_filt.move(950, 90)
+
+        # Смещение кнопок фильтров
         self.button_blackwhite.move(950, 145)
         self.button_red.move(950, 190)
         self.button_blue.move(950, 235)
@@ -190,11 +231,10 @@ class ImageProcessor(QWidget):
         self.button_light.move(950, 325)
         self.button_dark.move(950, 370)
         self.button_negativ.move(950, 415)
-        self.button_mirrorv.move(950, 460)
-        self.button_mirrorg.move(950, 505)
-
-        self.button_inst.move(950, 15)
-        self.button_filt.move(950, 90)
+        self.button_contrast.move(950, 460)
+        self.button_sepia.move(950, 505)
+        self.button_mirrorv.move(950, 550)
+        self.button_mirrorg.move(950, 595)
 
         # Подключение слотов к сигналам
         self.button_open.clicked.connect(self.open_image)
@@ -219,21 +259,23 @@ class ImageProcessor(QWidget):
         self.button_mirrorg.clicked.connect(self.mirror_g)
         self.button_negativ.clicked.connect(self.noneError)
         self.button_negativ.clicked.connect(self.negativ)
+        self.button_contrast.clicked.connect(self.noneError)
+        self.button_contrast.clicked.connect(self.contrast)
+        self.button_sepia.clicked.connect(self.noneError)
+        self.button_sepia.clicked.connect(self.sepia)
 
-    def show_buttons(self):
-        # Остановить таймер и показать контейнер с кнопками
-        self.timer.stop()
-        self.button_container.show()
+        self.button_inst.clicked.connect(self.show_text)
 
-    def keyPressEvent(self, event: QKeyEvent):
-        # Обработка события нажатия клавиши
-        if event.key() == QtCore.Qt.Key_Z and event.modifiers() == QtCore.Qt.ControlModifier:
-            self.undo_filter()
+    # Функции
+    def show_text(self):
+        with open('instruction.txt', 'r', encoding='utf-8') as file:
+            text_content = file.read()
 
-    def undo_filter(self):
-        if self.image_original is not None:
-            self.label.setPixmap(QPixmap.fromImage(self.image_original))
-            self.image_filtered = None
+        msg_box = QMessageBox(self)
+        msg_box.setStyleSheet("QLabel { color: rgb(170, 170, 180); }")
+        msg_box.setWindowTitle("Инструкция")
+        msg_box.setText(text_content)
+        msg_box.exec_()
 
     def save_image(self):
         if self.label.pixmap():  # Проверяем, есть ли изображение для сохранения
@@ -246,17 +288,7 @@ class ImageProcessor(QWidget):
             msg = QMessageBox()
             msg.setIcon(QMessageBox.Information)
             msg.setText("Не выбрано изображение для сохранения")
-            msg.setWindowTitle("Внимание")
-            msg.exec_()
-
-    def noneError(self):
-        if self.label.pixmap():  # Проверяем, есть ли изображение для сохранения
-            pass
-        else:
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Information)
-            msg.setText("Не выбрано изображение для обработки")
-            msg.setWindowTitle("Внимание ЭЭУУ")
+            msg.setWindowTitle("Внимание ЭЭЭУ")
             msg.exec_()
 
     def open_image(self):
@@ -277,6 +309,60 @@ class ImageProcessor(QWidget):
             self.setLayout(grid_layout)
             # pixmap = pixmap.scaledToHeight(600)
 
+    def noneError(self):
+        if self.label.pixmap():  # Проверяем, есть ли изображение для сохранения
+            pass
+        else:
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Information)
+            msg.setText("Не выбрано изображение для обработки")
+            msg.setWindowTitle("Внимание ЭЭЭУ")
+            msg.exec_()
+
+    # Функции фильтров
+    # Сепиа
+    def sepia(self):
+        if not self.label.pixmap():
+            return
+
+        image = self.label.pixmap().toImage()
+        for x in range(image.width()):
+            for y in range(image.height()):
+                color = QColor(image.pixelColor(x, y))
+                new_red, new_green, new_blue = self.apply_sepia(color)
+                image.setPixelColor(x, y, QColor(new_red, new_green, new_blue))
+
+        self.label.setPixmap(QPixmap.fromImage(image))
+
+    def apply_sepia(self, color):
+        intensity = 0.3 * color.red() + 0.59 * color.green() + 0.11 * color.blue()
+        new_red = min(255, int(intensity + 40))
+        new_green = min(255, int(intensity + 20))
+        new_blue = min(255, int(intensity - 20))
+        return new_red, new_green, new_blue
+
+    # Контраст
+    def contrast(self):
+        if not self.label.pixmap():
+            return
+
+        contrast_factor = 1.5
+
+        image = self.label.pixmap().toImage()
+        for x in range(image.width()):
+            for y in range(image.height()):
+                color = QColor(image.pixelColor(x, y))
+                new_red = self.apply_contrast(color.red(), contrast_factor)
+                new_green = self.apply_contrast(color.green(), contrast_factor)
+                new_blue = self.apply_contrast(color.blue(), contrast_factor)
+                image.setPixelColor(x, y, QColor(new_red, new_green, new_blue))
+
+        self.label.setPixmap(QPixmap.fromImage(image))
+
+    def apply_contrast(self, value, factor):
+        return min(255, max(0, int(factor * (value - 128) + 128)))
+
+    # Краснее
     def red(self):
         if not self.label.pixmap():
             return
@@ -291,6 +377,7 @@ class ImageProcessor(QWidget):
 
         self.label.setPixmap(QPixmap.fromImage(image))
 
+    # Синевее
     def blue(self):
         if not self.label.pixmap():
             return
@@ -305,6 +392,7 @@ class ImageProcessor(QWidget):
 
         self.label.setPixmap(QPixmap.fromImage(image))
 
+    # Зеленее
     def green(self):
         if not self.label.pixmap():
             return
@@ -319,6 +407,7 @@ class ImageProcessor(QWidget):
 
         self.label.setPixmap(QPixmap.fromImage(image))
 
+    # Светлее
     def light(self):
         if not self.label.pixmap():
             return
@@ -335,6 +424,7 @@ class ImageProcessor(QWidget):
 
         self.label.setPixmap(QPixmap.fromImage(image))
 
+    # Темнее
     def dark(self):
         if not self.label.pixmap():
             return
@@ -351,6 +441,7 @@ class ImageProcessor(QWidget):
 
         self.label.setPixmap(QPixmap.fromImage(image))
 
+    # ЧБ
     def apply_black_and_white_filter(self):
         if not self.label.pixmap():
             return
@@ -364,26 +455,29 @@ class ImageProcessor(QWidget):
 
         self.label.setPixmap(QPixmap.fromImage(image))
 
+    # Зеркалить по горизонтали
     def mirror_g(self):
         if not self.label.pixmap():
             return
 
         pixmap = self.label.pixmap()
-        transform = QTransform().scale(-1, 1)  # Отражение по горизонтали
+        transform = QTransform().scale(-1, 1)
         mirrored_pixmap = pixmap.transformed(transform)
 
         self.label.setPixmap(mirrored_pixmap)
 
+    # Зеркалить по вертикали
     def mirror_v(self):
         if not self.label.pixmap():
             return
 
         pixmap = self.label.pixmap()
-        transform = QTransform().scale(1, -1)  # Отражение по вертикали
+        transform = QTransform().scale(1, -1)
         mirrored_pixmap = pixmap.transformed(transform)
 
         self.label.setPixmap(mirrored_pixmap)
 
+    # Негатив
     def negativ(self):
         if not self.label.pixmap():
             return
