@@ -10,6 +10,7 @@ PhotoJob - это простое приложение для обработки 
    pip install -r requirements.txt
 
 ## Запуск приложения
+выполните следующую команду:
    ```bash
    python mainfile.py
 
