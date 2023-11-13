@@ -12,10 +12,6 @@ class ImageProcessor(QWidget):
     def __init__(self):
         super().__init__()
 
-        # Подключение к базе данных
-        connection = sqlite3.connect("your_database.db")
-        cursor = connection.cursor()
-
         # Интерфейс
         self.setWindowTitle("PhotoJob")
         self.setGeometry(200, 50, 1200, 800)
