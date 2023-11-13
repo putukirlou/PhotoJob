@@ -347,9 +347,9 @@ class Design(QWidget):
         self.button_open.move(975, 710)
         self.button_save.move(975, 750)
 
-        self.button_history.move(1065, 15)
-        self.button_inst.move(975, 15)
-        self.button_filt.move(975, 90)
+        self.button_history.move(1065, 25)
+        self.button_inst.move(975, 25)
+        self.button_filt.move(975, 100)
 
         # Смещение кнопок фильтров
         self.button_blackwhite.move(975, 145)
