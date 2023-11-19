@@ -4,22 +4,11 @@ PhotoJob - это программа для применения фильтро�
 
 ## Структура проекта
 
+1) main.py - главный файл
+2) widgets.py - файл содержащий настройки и стили кнопок
+3) support.py - файл содержащий класс функций фильтров
+4) requirements.txt - зависимости проекта
 
-photojob/
-│
-├── filters/
-│   ├── filter1.py
-│   ├── filter2.py
-│   └── ...
-│
-├── utils/
-│   ├── imageutils.py
-│   ├── fileutils.py
-│   └── ...
-│
-├── main.py
-├── requirements.txt
-└── ...
 
 
 ## Как пользоваться программой
