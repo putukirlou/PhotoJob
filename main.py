@@ -2,7 +2,7 @@ import sys
 import sqlite3
 
 from PyQt5 import QtWidgets, QtCore
-from PyQt5.QtWidgets import QApplication, QFileDialog, QMessageBox, QWidget, QListWidget
+from PyQt5.QtWidgets import QApplication, QFileDialog, QMessageBox, QWidget
 from PyQt5.QtGui import QPixmap
 
 from support import PhotoShop
@@ -86,6 +86,7 @@ class ImageProcessor(QWidget):
         self.design.button_sepia.clicked.connect(self.filt_sep)
 
         self.design.button_inst.clicked.connect(self.show_text)
+        self.design.button_history.clicked.connect(self.show_hist)
 
         self.db_manager = DatabaseManager()
 
@@ -159,6 +160,21 @@ class ImageProcessor(QWidget):
         msg_box.setText(text_content)
         msg_box.exec_()
 
+    def show_hist(self):
+        connection = sqlite3.connect('imagehistory.db')
+        cursor = connection.cursor()
+        cursor.execute("SELECT * FROM data")
+        data = cursor.fetchall()
+
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Information)
+        msg.setStyleSheet("QLabel { color: rgb(30, 30, 40);}")
+        msg.setWindowTitle("История примененных фильтров")
+        msg.setText(str(data))
+        msg.exec_()
+
+        connection.close()
+
     def save_image(self):
         if self.design.label.pixmap():  # Проверяем, есть ли изображение для сохранения
             options = QFileDialog.Options()
@@ -175,6 +191,14 @@ class ImageProcessor(QWidget):
             msg.exec_()
 
     def open_image(self):
+        connection = sqlite3.connect('imagehistory.db')
+        cursor = connection.cursor()
+        delete_query = "DELETE FROM data"
+        cursor.execute(delete_query)
+        connection.commit()
+        cursor.close()
+        connection.close()
+
         options = QFileDialog.Options()
         file_name, _ = QFileDialog.getOpenFileName(self, "Выберите изображение", "",
                                                    "Изображения (*.jpg *.png *.jpeg)", options=options)
