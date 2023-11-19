@@ -1,0 +1,19 @@
+Помощь в использовании:
+1). Откройте изображение, которое хотите обработать и наложить фильтры, нажав кнопку 
+“Открыть”
+2). Справа находятся фильтры, которые можно применять, нажав соответствующие кнопки любое 
+количество раз
+3) Если хотите начать накладывать фильтры на другое изображение опять нажмите кнопку 
+“Открыть”
+4). Чтобы сохранить получившееся изображение нажмите “Сохранить” и выберете нужную вам 
+папку и имя
+
+Help in using:
+1). Open the image you want to process and apply filters by clicking 
+“Open”
+2). On the right are filters that can be applied by clicking the corresponding buttons any
+number of times
+3) If you want to start applying filters to another image, click again 
+“Open”
+4). To save the resulting image, click “Save” and select
+the folder and name you need
